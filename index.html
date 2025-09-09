@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حسابات أرباح الطلبات - مخزن نجمة عشتار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+        .stats-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .form-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">⭐ نظام حسابات أرباح الطلبات - مخزن نجمة عشتار</h1>
+            <p class="text-gray-600">إدارة شاملة للطلبات والأرباح</p>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div class="stats-card text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm">إجمالي الطلبات</p>
+                        <p class="text-2xl font-bold" id="totalOrders">0</p>
+                    </div>
+                    <div class="text-3xl">📦</div>
+                </div>
+            </div>
+            <div class="stats-card text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm">إجمالي الأرباح</p>
+                        <p class="text-2xl font-bold" id="totalProfits">0 د.ع</p>
+                    </div>
+                    <div class="text-3xl">💰</div>
+                </div>
+            </div>
+            <div class="stats-card text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm">أرباح المندوبين</p>
+                        <p class="text-2xl font-bold" id="totalDeliveryProfits">0 د.ع</p>
+                    </div>
+                    <div class="text-3xl">🚚</div>
+                </div>
+            </div>
+            <div class="stats-card text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm">مصاريف الترويج</p>
+                        <p class="text-2xl font-bold" id="totalPromotionCosts">0 د.ع</p>
+                    </div>
+                    <div class="text-3xl">📢</div>
+                </div>
+            </div>
+            <div class="stats-card text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/80 text-sm">صافي الربح</p>
+                        <p class="text-2xl font-bold" id="netProfit">0 د.ع</p>
+                    </div>
+                    <div class="text-3xl">📈</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Representative Profits Section -->
+        <div class="mb-8 bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                <span class="ml-2">👥</span>
+                أرباح المندوبين
+            </h3>
+            <div id="representativeStats" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="text-gray-500 text-center p-4">لا توجد أرباح بعد</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column -->
+            <div class="space-y-6">
+                <!-- Delivery Profit Ranges -->
+                <div class="form-card text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="ml-2">💼</span>
+                        إعداد أرباح المندوبين
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" id="rangeMin" placeholder="من (د.ع)" class="p-3 rounded-lg text-gray-800 border-0">
+                            <input type="number" id="rangeMax" placeholder="إلى (د.ع)" class="p-3 rounded-lg text-gray-800 border-0">
+                            <input type="number" id="rangeProfit" placeholder="الربح (د.ع)" class="p-3 rounded-lg text-gray-800 border-0">
+                        </div>
+                        <button onclick="addProfitRange()" class="w-full bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-all">
+                            إضافة نطاق ربح
+                        </button>
+                        <div id="profitRanges" class="space-y-2 max-h-40 overflow-y-auto"></div>
+                    </div>
+                </div>
+
+                <!-- Add Representative -->
+                <div class="form-card text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="ml-2">👤</span>
+                        إضافة مندوب
+                    </h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="repName" placeholder="اسم المندوب" class="flex-1 p-3 rounded-lg text-gray-800 border-0">
+                        <button onclick="addRepresentative()" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-all">
+                            إضافة
+                        </button>
+                    </div>
+                    <div id="representatives" class="mt-4 space-y-2 max-h-32 overflow-y-auto"></div>
+                </div>
+
+                <!-- Add Governorate -->
+                <div class="form-card text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="ml-2">🏛️</span>
+                        إضافة محافظة
+                    </h3>
+                    <div class="space-y-2">
+                        <input type="text" id="govName" placeholder="اسم المحافظة" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                        <input type="number" id="govPrice" placeholder="سعر التوصيل (د.ع)" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                        <button onclick="addGovernorate()" class="w-full bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-all">
+                            إضافة محافظة
+                        </button>
+                    </div>
+                    <div id="governorates" class="mt-4 space-y-2 max-h-32 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Add Product -->
+                <div class="form-card text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="ml-2">📦</span>
+                        إضافة منتج
+                    </h3>
+                    <div class="space-y-2">
+                        <input type="text" id="productName" placeholder="اسم المنتج" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                        <input type="number" id="productPrice" placeholder="سعر المنتج (د.ع)" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                        <button onclick="addProduct()" class="w-full bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-all">
+                            إضافة منتج
+                        </button>
+                    </div>
+                    <div id="products" class="mt-4 space-y-2 max-h-32 overflow-y-auto"></div>
+                </div>
+
+                <!-- Add Promotion -->
+                <div class="form-card text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="ml-2">📢</span>
+                        إضافة مصروف ترويج
+                    </h3>
+                    <div class="space-y-2">
+                        <input type="text" id="promotionDescription" placeholder="وصف الترويج" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" id="promotionAmountUSD" placeholder="المبلغ ($)" class="p-3 rounded-lg text-gray-800 border-0" step="0.01">
+                            <div class="bg-white/10 p-3 rounded-lg flex items-center justify-center text-sm">
+                                <span id="promotionAmountIQD">0 د.ع</span>
+                            </div>
+                        </div>
+                        <button onclick="addPromotion()" class="w-full bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-all">
+                            إضافة مصروف ترويج
+                        </button>
+                    </div>
+                    <div id="promotions" class="mt-4 space-y-2 max-h-32 overflow-y-auto"></div>
+                </div>
+
+                <!-- Add Order -->
+                <div class="card text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="ml-2">🛒</span>
+                        إضافة طلب جديد
+                    </h3>
+                    <div class="space-y-3">
+                        <select id="orderProduct" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                            <option value="">اختر المنتج</option>
+                        </select>
+                        <select id="orderGovernorate" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                            <option value="">اختر المحافظة</option>
+                        </select>
+                        <select id="orderRepresentative" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                            <option value="">اختر المندوب</option>
+                        </select>
+                        <input type="number" id="orderPrice" placeholder="سعر الطلب (د.ع)" class="w-full p-3 rounded-lg text-gray-800 border-0">
+                        
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>سعر التوصيل: <span id="deliveryPriceDisplay">0 د.ع</span></div>
+                                <div>سعر المنتج: <span id="productPriceDisplay">0 د.ع</span></div>
+                                <div>ربح المندوب: <span id="repProfitDisplay">0 د.ع</span></div>
+                                <div class="col-span-2 font-bold text-lg">صافي الربح: <span id="netProfitDisplay">0 د.ع</span></div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="addOrder()" class="w-full bg-white/20 hover:bg-white/30 text-white p-3 rounded-lg transition-all">
+                            إضافة الطلب
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Weekly Stats & Reset -->
+                <div class="card text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="ml-2">📅</span>
+                        الإحصائيات الأسبوعية
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div>طلبات هذا الأسبوع: <span id="weeklyOrders">0</span></div>
+                                <div>أرباح الأسبوع: <span id="weeklyProfits">0 د.ع</span></div>
+                            </div>
+                        </div>
+                        <button onclick="resetWeeklyStats()" class="w-full bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition-all">
+                            🔄 تصفير الأرباح الأسبوعية
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders History -->
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                <span class="ml-2">📋</span>
+                سجل الطلبات
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-3 text-right">#</th>
+                            <th class="p-3 text-right">المنتج</th>
+                            <th class="p-3 text-right">المحافظة</th>
+                            <th class="p-3 text-right">المندوب</th>
+                            <th class="p-3 text-right">سعر الطلب</th>
+                            <th class="p-3 text-right">التوصيل</th>
+                            <th class="p-3 text-right">ربح المندوب</th>
+                            <th class="p-3 text-right">صافي الربح</th>
+                            <th class="p-3 text-right">التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersHistory"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage with localStorage backup
+        let profitRanges = JSON.parse(localStorage.getItem('profitRanges')) || [];
+        let representatives = JSON.parse(localStorage.getItem('representatives')) || [];
+        let governorates = JSON.parse(localStorage.getItem('governorates')) || [];
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let promotions = JSON.parse(localStorage.getItem('promotions')) || [];
+        let weeklyStats = JSON.parse(localStorage.getItem('weeklyStats')) || { orders: 0, profits: 0 };
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('profitRanges', JSON.stringify(profitRanges));
+            localStorage.setItem('representatives', JSON.stringify(representatives));
+            localStorage.setItem('governorates', JSON.stringify(governorates));
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('orders', JSON.stringify(orders));
+            localStorage.setItem('promotions', JSON.stringify(promotions));
+            localStorage.setItem('weeklyStats', JSON.stringify(weeklyStats));
+        }
+
+        // Add profit range
+        function addProfitRange() {
+            const min = document.getElementById('rangeMin').value;
+            const max = document.getElementById('rangeMax').value;
+            const profit = document.getElementById('rangeProfit').value;
+            
+            if (min && max && profit) {
+                profitRanges.push({ min: parseInt(min), max: parseInt(max), profit: parseInt(profit) });
+                updateProfitRangesDisplay();
+                saveData();
+                document.getElementById('rangeMin').value = '';
+                document.getElementById('rangeMax').value = '';
+                document.getElementById('rangeProfit').value = '';
+            }
+        }
+
+        function updateProfitRangesDisplay() {
+            const container = document.getElementById('profitRanges');
+            container.innerHTML = profitRanges.map((range, index) => 
+                `<div class="bg-white/10 p-2 rounded flex justify-between items-center">
+                    <span>من ${range.min.toLocaleString()} إلى ${range.max.toLocaleString()} = ${range.profit.toLocaleString()} د.ع</span>
+                    <button onclick="removeProfitRange(${index})" class="text-red-300 hover:text-red-100">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        function removeProfitRange(index) {
+            profitRanges.splice(index, 1);
+            updateProfitRangesDisplay();
+            saveData();
+        }
+
+        // Add representative
+        function addRepresentative() {
+            const name = document.getElementById('repName').value.trim();
+            if (name && !representatives.includes(name)) {
+                representatives.push(name);
+                updateRepresentativesDisplay();
+                updateOrderSelects();
+                saveData();
+                document.getElementById('repName').value = '';
+            }
+        }
+
+        function updateRepresentativesDisplay() {
+            const container = document.getElementById('representatives');
+            container.innerHTML = representatives.map((rep, index) => 
+                `<div class="bg-white/10 p-2 rounded flex justify-between items-center">
+                    <span>${rep}</span>
+                    <button onclick="removeRepresentative(${index})" class="text-red-300 hover:text-red-100">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        function removeRepresentative(index) {
+            representatives.splice(index, 1);
+            updateRepresentativesDisplay();
+            updateOrderSelects();
+            saveData();
+        }
+
+        // Add governorate
+        function addGovernorate() {
+            const name = document.getElementById('govName').value.trim();
+            const price = document.getElementById('govPrice').value;
+            
+            if (name && price) {
+                governorates.push({ name, price: parseInt(price) });
+                updateGovernoratesDisplay();
+                updateOrderSelects();
+                saveData();
+                document.getElementById('govName').value = '';
+                document.getElementById('govPrice').value = '';
+            }
+        }
+
+        function updateGovernoratesDisplay() {
+            const container = document.getElementById('governorates');
+            container.innerHTML = governorates.map((gov, index) => 
+                `<div class="bg-white/10 p-2 rounded flex justify-between items-center">
+                    <span>${gov.name} - ${gov.price.toLocaleString()} د.ع</span>
+                    <button onclick="removeGovernorate(${index})" class="text-red-300 hover:text-red-100">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        function removeGovernorate(index) {
+            governorates.splice(index, 1);
+            updateGovernoratesDisplay();
+            updateOrderSelects();
+            saveData();
+        }
+
+        // Add product
+        function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const price = document.getElementById('productPrice').value;
+            
+            if (name && price) {
+                products.push({ name, price: parseInt(price) });
+                updateProductsDisplay();
+                updateOrderSelects();
+                saveData();
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+            }
+        }
+
+        function updateProductsDisplay() {
+            const container = document.getElementById('products');
+            container.innerHTML = products.map((product, index) => 
+                `<div class="bg-white/10 p-2 rounded flex justify-between items-center">
+                    <span>${product.name} - ${product.price.toLocaleString()} د.ع</span>
+                    <button onclick="removeProduct(${index})" class="text-red-300 hover:text-red-100">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        function removeProduct(index) {
+            products.splice(index, 1);
+            updateProductsDisplay();
+            updateOrderSelects();
+            saveData();
+        }
+
+        // Add promotion
+        function addPromotion() {
+            const description = document.getElementById('promotionDescription').value.trim();
+            const amountUSD = parseFloat(document.getElementById('promotionAmountUSD').value) || 0;
+            
+            if (description && amountUSD > 0) {
+                const amountIQD = Math.round(amountUSD * 1400);
+                promotions.push({ 
+                    description, 
+                    amountUSD, 
+                    amountIQD,
+                    date: new Date().toLocaleDateString('ar-IQ')
+                });
+                updatePromotionsDisplay();
+                updateStatistics();
+                saveData();
+                document.getElementById('promotionDescription').value = '';
+                document.getElementById('promotionAmountUSD').value = '';
+                document.getElementById('promotionAmountIQD').textContent = '0 د.ع';
+            }
+        }
+
+        function updatePromotionsDisplay() {
+            const container = document.getElementById('promotions');
+            container.innerHTML = promotions.map((promo, index) => 
+                `<div class="bg-white/10 p-2 rounded flex justify-between items-center">
+                    <span>${promo.description} - ${promo.amountIQD.toLocaleString()} د.ع</span>
+                    <button onclick="removePromotion(${index})" class="text-red-300 hover:text-red-100">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        function removePromotion(index) {
+            promotions.splice(index, 1);
+            updatePromotionsDisplay();
+            updateStatistics();
+            saveData();
+        }
+
+        // Update order form selects
+        function updateOrderSelects() {
+            const productSelect = document.getElementById('orderProduct');
+            const govSelect = document.getElementById('orderGovernorate');
+            const repSelect = document.getElementById('orderRepresentative');
+            
+            productSelect.innerHTML = '<option value="">اختر المنتج</option>' + 
+                products.map((product, index) => `<option value="${index}">${product.name}</option>`).join('');
+            
+            govSelect.innerHTML = '<option value="">اختر المحافظة</option>' + 
+                governorates.map((gov, index) => `<option value="${index}">${gov.name}</option>`).join('');
+            
+            repSelect.innerHTML = '<option value="">اختر المندوب</option>' + 
+                representatives.map((rep, index) => `<option value="${index}">${rep}</option>`).join('');
+        }
+
+        // Calculate delivery profit based on order price
+        function calculateDeliveryProfit(orderPrice) {
+            for (let range of profitRanges) {
+                if (orderPrice >= range.min && orderPrice <= range.max) {
+                    return range.profit;
+                }
+            }
+            return 0;
+        }
+
+        // Update order calculations
+        function updateOrderCalculations() {
+            const productIndex = document.getElementById('orderProduct').value;
+            const govIndex = document.getElementById('orderGovernorate').value;
+            const orderPrice = parseInt(document.getElementById('orderPrice').value) || 0;
+            
+            const deliveryPrice = govIndex !== '' ? governorates[govIndex].price : 0;
+            const productPrice = productIndex !== '' ? products[productIndex].price : 0;
+            const repProfit = calculateDeliveryProfit(orderPrice);
+            const netProfit = orderPrice - deliveryPrice - productPrice - repProfit;
+            
+            document.getElementById('deliveryPriceDisplay').textContent = deliveryPrice.toLocaleString() + ' د.ع';
+            document.getElementById('productPriceDisplay').textContent = productPrice.toLocaleString() + ' د.ع';
+            document.getElementById('repProfitDisplay').textContent = repProfit.toLocaleString() + ' د.ع';
+            document.getElementById('netProfitDisplay').textContent = netProfit.toLocaleString() + ' د.ع';
+        }
+
+        // Add order
+        function addOrder() {
+            const productIndex = document.getElementById('orderProduct').value;
+            const govIndex = document.getElementById('orderGovernorate').value;
+            const repIndex = document.getElementById('orderRepresentative').value;
+            const orderPrice = parseInt(document.getElementById('orderPrice').value) || 0;
+            
+            if (productIndex !== '' && govIndex !== '' && repIndex !== '' && orderPrice > 0) {
+                const deliveryPrice = governorates[govIndex].price;
+                const productPrice = products[productIndex].price;
+                const repProfit = calculateDeliveryProfit(orderPrice);
+                const netProfit = orderPrice - deliveryPrice - productPrice - repProfit;
+                
+                const order = {
+                    id: orders.length + 1,
+                    product: products[productIndex].name,
+                    governorate: governorates[govIndex].name,
+                    representative: representatives[repIndex],
+                    orderPrice,
+                    deliveryPrice,
+                    productPrice,
+                    repProfit,
+                    netProfit,
+                    date: new Date().toLocaleDateString('ar-IQ')
+                };
+                
+                orders.push(order);
+                weeklyStats.orders++;
+                weeklyStats.profits += netProfit;
+                
+                updateOrdersHistory();
+                updateStatistics();
+                saveData();
+                clearOrderForm();
+            }
+        }
+
+        function clearOrderForm() {
+            document.getElementById('orderProduct').value = '';
+            document.getElementById('orderGovernorate').value = '';
+            document.getElementById('orderRepresentative').value = '';
+            document.getElementById('orderPrice').value = '';
+            updateOrderCalculations();
+        }
+
+        // Update orders history
+        function updateOrdersHistory() {
+            const tbody = document.getElementById('ordersHistory');
+            tbody.innerHTML = orders.map(order => 
+                `<tr class="border-b hover:bg-gray-50">
+                    <td class="p-3">${order.id}</td>
+                    <td class="p-3">${order.product}</td>
+                    <td class="p-3">${order.governorate}</td>
+                    <td class="p-3">${order.representative}</td>
+                    <td class="p-3">${order.orderPrice.toLocaleString()} د.ع</td>
+                    <td class="p-3">${order.deliveryPrice.toLocaleString()} د.ع</td>
+                    <td class="p-3">${order.repProfit.toLocaleString()} د.ع</td>
+                    <td class="p-3 font-bold text-green-600">${order.netProfit.toLocaleString()} د.ع</td>
+                    <td class="p-3">${order.date}</td>
+                </tr>`
+            ).join('');
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const totalOrders = orders.length;
+            const totalOrderProfits = orders.reduce((sum, order) => sum + order.netProfit, 0);
+            const totalDeliveryProfits = orders.reduce((sum, order) => sum + order.repProfit, 0);
+            const totalPromotionCosts = promotions.reduce((sum, promo) => sum + promo.amountIQD, 0);
+            const finalNetProfit = totalOrderProfits - totalPromotionCosts;
+            
+            // Calculate representative profits
+            const repProfits = {};
+            orders.forEach(order => {
+                if (repProfits[order.representative]) {
+                    repProfits[order.representative] += order.repProfit;
+                } else {
+                    repProfits[order.representative] = order.repProfit;
+                }
+            });
+            
+            // Update representative stats display
+            const repStatsContainer = document.getElementById('representativeStats');
+            if (Object.keys(repProfits).length === 0) {
+                repStatsContainer.innerHTML = '<div class="text-gray-500 text-center p-4">لا توجد أرباح بعد</div>';
+            } else {
+                repStatsContainer.innerHTML = Object.entries(repProfits)
+                    .map(([rep, profit]) => 
+                        `<div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-lg shadow-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-white/80 text-sm">${rep}</p>
+                                    <p class="text-xl font-bold">${profit.toLocaleString()} د.ع</p>
+                                </div>
+                                <div class="text-2xl">💰</div>
+                            </div>
+                        </div>`
+                    )
+                    .join('');
+            }
+            
+            document.getElementById('totalOrders').textContent = totalOrders.toLocaleString();
+            document.getElementById('totalProfits').textContent = totalOrderProfits.toLocaleString() + ' د.ع';
+            document.getElementById('totalDeliveryProfits').textContent = totalDeliveryProfits.toLocaleString() + ' د.ع';
+            document.getElementById('totalPromotionCosts').textContent = totalPromotionCosts.toLocaleString() + ' د.ع';
+            document.getElementById('netProfit').textContent = finalNetProfit.toLocaleString() + ' د.ع';
+            
+            document.getElementById('weeklyOrders').textContent = weeklyStats.orders.toLocaleString();
+            document.getElementById('weeklyProfits').textContent = weeklyStats.profits.toLocaleString() + ' د.ع';
+        }
+
+        // Reset weekly stats
+        function resetWeeklyStats() {
+            if (confirm('هل أنت متأكد من تصفير الإحصائيات الأسبوعية؟\nسيتم تصفير:\n- طلبات الأسبوع\n- أرباح الأسبوع\n- أرباح المندوبين\n\nسيتم الاحتفاظ بجميع البيانات الأخرى (المنتجات، المندوبين، المحافظات، سجل الطلبات)')) {
+                // تصفير الإحصائيات الأسبوعية
+                weeklyStats.orders = 0;
+                weeklyStats.profits = 0;
+                
+                // تصفير سجل الطلبات (هذا ما يؤثر على أرباح المندوبين)
+                orders = [];
+                
+                // حفظ التغييرات
+                saveData();
+                
+                // تحديث جميع الإحصائيات والعروض
+                updateOrdersHistory();
+                updateStatistics();
+                
+                alert('تم تصفير الإحصائيات الأسبوعية وأرباح المندوبين بنجاح!');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('orderProduct').addEventListener('change', updateOrderCalculations);
+        document.getElementById('orderGovernorate').addEventListener('change', updateOrderCalculations);
+        document.getElementById('orderPrice').addEventListener('input', updateOrderCalculations);
+        
+        // Promotion amount conversion
+        document.getElementById('promotionAmountUSD').addEventListener('input', function() {
+            const usdAmount = parseFloat(this.value) || 0;
+            const iqdAmount = Math.round(usdAmount * 1400);
+            document.getElementById('promotionAmountIQD').textContent = iqdAmount.toLocaleString() + ' د.ع';
+        });
+
+        // Initialize and load saved data
+        function initializeApp() {
+            updateProfitRangesDisplay();
+            updateRepresentativesDisplay();
+            updateGovernoratesDisplay();
+            updateProductsDisplay();
+            updatePromotionsDisplay();
+            updateOrderSelects();
+            updateOrdersHistory();
+            updateStatistics();
+        }
+
+        // Initialize
+        initializeApp();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97c1bb2543e5ac8b',t:'MTc1NzM2ODk1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
